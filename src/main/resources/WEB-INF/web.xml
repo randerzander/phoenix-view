@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <display-name>example</display-name>
+    <description>View for dealing with RealTime data from Kafka and Phoenix</description>
+    <welcome-file-list>
+      <welcome-file>ui/index.html</welcome-file>
+    </welcome-file-list>
+
+    <!-- REST endpoints -->
+    <servlet>
+      <servlet-name>services</servlet-name>
+      <servlet-class>com.github.randerzander.view.Services</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>services</servlet-name>
+      <url-pattern>/services/</url-pattern>
+      <url-pattern>/services</url-pattern>
+    </servlet-mapping>
+
+    <!-- WebSockets 
+    <servlet>
+      <servlet-name>sockets</servlet-name>
+      <servlet-class>com.github.randerzander.view.Sockets</servlet-class>
+    </servlet>
+    <servlet-mapping>
+      <servlet-name>sockets</servlet-name>
+      <url-pattern>/sockets/</url-pattern>
+      <url-pattern>/sockets</url-pattern>
+    </servlet-mapping>
+    -->
+
+    <!-- Static/UI elements -->
+    <servlet-mapping>
+      <servlet-name>default</servlet-name>
+      <url-pattern>/</url-pattern>
+      <url-pattern>/ui/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>
