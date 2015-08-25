@@ -15,23 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License. Kerberos, LDAP, Custom. Binary/Htt
 -->
 <view>
-    <name>RT</name>
-    <label>RT</label>
-    <version>0.1.0</version>
-    <!--
-    <resource>
-      <name>sockets</name>
-      <service-class>com.github.randerzander.view.Sockets</service-class>
-    </resource>
-    -->
-    <parameter>
-      <name>zookeeper.connect</name>
-      <description>ZooKeeper Quorum List</description>
-      <label>ZooKeeper Quorum List</label>
-      <default-value>localhost:2181</default-value>
-      <placeholder>localhost:2181</placeholder>
-      <required>true</required>
-    </parameter>
+    <name>Phoenix</name>
+    <label>Phoenix</label>
+    <version>0.0.1</version>
     <parameter>
       <name>jdbc.url</name>
       <description>JDBC Connection string for Apache Phoenix</description>

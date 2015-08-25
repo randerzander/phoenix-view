@@ -1,55 +1,47 @@
-// Randomly add a data point every 500ms
-var interval = 1000;
-var metrics = {};
-var chart = new SmoothieChart({
-  labels: { fillStyle:'rgb(100, 246, 255)', fontSize: 13, precision: 0},
-  grid: { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgb(0, 0, 0)',
-    lineWidth: 1, millisPerLine: interval, verticalSections: 4 },
-  timestampFormatter: SmoothieChart.timeFormatter
-});
+$('#submit').on('click', function(){
+  cleanup(); //Clear existing populated results
+  var $btn = $(this).button('loading'); //Set 'Submit' button loading state
 
-chart.streamTo(document.getElementById("chart"), 1000);
-
-var query = 
- 'select metrics.* from metrics m ' +
- 'inner join (' +
-   'select host, facility, metric, max(timestamp) as timestamp from metrics group by host, facility, metric) a ' + 
-   'on m.host=a.host and m.facility = a.facility and m.metric = a.metric and m.timestamp = a.timestamp;';
-
-// Poll Phoenix for latest metric values
-setInterval(function() {
-  $.ajax({
+  $.ajax({ //Submit the query
     type: 'POST',
     url: 'services',
-    data: query,
+    data: $('#txtquery').val(),
     success: function(data){
       var result = JSON.parse(data);
-      $.each(result.result, function(index, row){
-        host = row[0]; facility = row[1];
-        metric = row[2]; val = row[4];
-        name = host + '|' + facility + '|' + metric;
-
-        if (metrics.hasOwnProperty(name))
-          metrics[name].append(new Date().getTime(), val);
-        else {
-          //Haven't seen this metric before. Create a line on the chart
-          metrics[name] = new TimeSeries();
-          metrics[name].append(new Date().getTime(), val);
-
-          var color = goldenColors.getHsvGolden(0.99, 0.99).toRgb();
-          rgb = 'rgb('+color[0]+','+color[1]+','+color[2]+')';
-          chart.addTimeSeries(metrics[name], {
-            strokeStyle: rgb.replace('rgb', 'rgba').replace(')', ',1)'),
-            fillStyle: rgb.replace('rgb', 'rgba').replace(')', ',0)'),
-            lineWidth: 3 }
-          );
-          newHtml = '<tr>'+cell(host)+cell(facility)+cell(metric)+cell(square(rgb))+'</tr>';
-          $('#legend tr:last').after(newHtml);
-        }
+      var csv = "data:text/csv;charset=utf-8,";
+      //Append headers
+      csv += result.columns.join(',') + '\n';
+      $.each(result.columns, function(i, v){
+        $('#rows>thead>tr').append('<th>' + v + '</th>');
       });
+      //Append rows
+      $.each(result.result, function(i, v){
+        //Append cells
+        csv += v.join(',') + '\n';
+        var row = '<tr>';
+        $.each(v, function(index, val){
+          row += '<td>' + val + '</td>';
+        });
+        $('#rows>tbody').append(row + '</tr>');
+      });
+      $btn.button('reset'); //clear 'Submit' button loading state
+
+      //Create CSV link
+      var link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csv));
+      link.setAttribute('download', 'result.csv');
+      link.innerHTML='Save CSV';
+      $('#csvlink').removeClass('hidden').append(link);
+
+      //Update collapsible panes
+      $('#collapseOne').removeClass('in').addClass('collapsing');
+      $('#collapseTwo').addClass('in');
     }
   });
-}, interval);
+});
 
-function square(rgb){ return '<div style="width:15px;height:15px;border:1px solid #000;background-color:'+rgb+'"> </div>'; }
-function cell(val){ return '<td>'+val+'</td>'; }
+function cleanup(){ //Clear old results
+  $('#rows>thead>tr>th').remove();
+  $('#rows>tbody>tr').remove();
+  $('#csvlink>a').remove();
+}
